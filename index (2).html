@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AquaGoal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #dff6ff, #f0fbff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  text-align: center;
+  background: black;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: 320px;
+}
+
+h2 {
+  margin-top: 0;
+  color: white;
+}
+
+.circle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+}
+
+svg {
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #333;
+  stroke-width: 15;
+}
+
+.circle-progress {
+  fill: none;
+  stroke: #4ecdc4;
+  stroke-width: 15;
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  color: white;
+}
+
+.motivation {
+  margin: 10px 0 20px;
+  font-weight: bold;
+  color: lightblue;
+  min-height: 24px;
+}
+
+input {
+  width: 80%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: white;
+}
+
+button {
+  width: 85%;
+  padding: 10px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 10px;
+  background: #4ecdc4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #38b2a6;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.reset {
+  background: #ff6b6b;
+}
+
+.reset:hover {
+  background: #e25555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Daily Water Goal 💪🏻</h2>
+
+  <div class="circle">
+    <svg width="200" height="200">
+      <circle class="circle-bg" cx="100" cy="100" r="90"></circle>
+      <circle id="progress" class="circle-progress" cx="100" cy="100" r="90"></circle>
+    </svg>
+
+    <div class="center-text">
+      <div id="amount">0 ml</div>
+      <div>/ 1500 ml</div>
+    </div>
+  </div>
+
+  <div id="motivation" class="motivation">
+    Your body deserves hydration 💙
+  </div>
+
+  <input id="cupInput" type="number" placeholder="Cup size in ml">
+
+  <button onclick="addWater()">Add Cup</button>
+  <button class="reset" onclick="resetDay()">Reset Next Day</button>
+
+</div>
+
+<script>
+const goal = 1500;
+let current = 0;
+
+const circle = document.getElementById("progress");
+const amountText = document.getElementById("amount");
+const motivationText = document.getElementById("motivation");
+
+if (localStorage.getItem("waterProgress")) {
+  current = parseInt(localStorage.getItem("waterProgress"));
+}
+
+function UI() {
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+
+  circle.style.strokeDasharray = circumference;
+
+  const percent = Math.min(current / goal, 1);
+  const offset = circumference * (1 - percent);
+
+  circle.style.strokeDashoffset = offset;
+  amountText.textContent = current + " ml";
+
+
+  if (percent === 0) {
+    motivationText.textContent = "Your body deserves hydration 💙";
+  } else if (percent < 0.25) {
+    motivationText.textContent = "Good start! Keep flowing 🌊";
+  } else if (percent < 0.5) {
+    motivationText.textContent = "Nice progress! Stay consistent 💪";
+  } else if (percent < 0.75) {
+    motivationText.textContent = "More than halfway there! 🚀";
+  } else if (percent < 1) {
+    motivationText.textContent = "Almost at your goal! 🌟";
+  } else {
+    motivationText.textContent = "Goal reached! Proud of you 🎉";
+  }
+
+
+  localStorage.setItem("waterProgress", current);
+}
+
+function addWater() {
+  const input = document.getElementById("cupInput");
+  const value = parseInt(input.value);
+
+  if (!value || value <= 0) {
+    alert("Enter a valid cup size");
+    return;
+  }
+
+  current += value;
+  if (current > goal) current = goal;
+
+  input.value = "";
+  UI();
+}
+
+function resetDay() {
+  current = 0;
+  localStorage.removeItem("waterProgress");
+  UI();
+}
+
+UI();
+</script>
+
+</body>
+</html>
